@@ -54,13 +54,12 @@ class WeightedGCNConv(MolConv):
 
     def forward(self, x: Tensor, edge_index: Adj, edge_attr: OptTensor = None, edge_weight: OptTensor = None) -> Tensor:
         edge_index = remove_self_loops(edge_index=edge_index)[0]
-        _, edge_attr = add_remaining_self_loops(edge_index, edge_attr, fill_value=1, num_nodes=x.shape[0])
 
         # propagate_type: (x: Tensor, edge_weight: OptTensor)
         edge_index, edge_weight = gcn_norm(  # yapf: disable
             edge_index, edge_weight, x.size(self.node_dim),
             self.improved, self.add_self_loops, self.flow, x.dtype)
-        out = self.propagate(edge_index, x=x, edge_weight=edge_weight, size=None, edge_attr=edge_attr)
+        out = self.propagate(edge_index, x=x, edge_weight=edge_weight, size=None)
         out = self.lin(out)
         return out
 
