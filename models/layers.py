@@ -52,7 +52,7 @@ class WeightedGCNConv(MolConv):
 
         self.lin = Linear(in_channels, out_channels, bias=bias)
 
-    def forward(self, x: Tensor, edge_index: Adj, edge_attr: OptTensor = None, edge_weight: OptTensor = None) -> Tensor:
+    def forward(self, x: Tensor, edge_index: Adj,edge_weight: OptTensor = None) -> Tensor:
         edge_index = remove_self_loops(edge_index=edge_index)[0]
 
         # propagate_type: (x: Tensor, edge_weight: OptTensor)
