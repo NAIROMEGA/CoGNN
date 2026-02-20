@@ -40,7 +40,8 @@ class WeightedGCNConv(MolConv):
         self.improved = False
         self.lin = Linear(in_channels, out_channels, bias=bias)
 
-    def forward(self, x: Tensor, edge_index: Adj, edge_weight: OptTensor = None) -> Tensor:
+    def forward(self, x: Tensor, edge_index: Adj, edge_weight: OptTensor = None, edge_attr: OptTensor = None) -> Tensor:
+        # On ignore edge_attr si fourni, juste pour compatibilité
         edge_index = remove_self_loops(edge_index=edge_index)[0]
         edge_index, edge_weight = gcn_norm(
             edge_index, edge_weight, x.size(0),
@@ -49,6 +50,7 @@ class WeightedGCNConv(MolConv):
         out = self.propagate(edge_index, x=x, edge_weight=edge_weight)
         out = self.lin(out)
         return out
+
 
 
 class WeightedGINConv(MolConv):
