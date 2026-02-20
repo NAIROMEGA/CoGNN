@@ -16,10 +16,26 @@ class ActionNet(nn.Module):
         self.dropout = nn.Dropout(action_args.dropout)
         self.act = action_args.act_type.get()
 
-    def forward(self, x: Tensor, edge_index: Adj, env_edge_attr: OptTensor, act_edge_attr: OptTensor) -> Tensor:
+    def forward(self,
+    x: Tensor,
+    edge_index: Adj,
+    env_edge_attr: OptTensor,
+    act_edge_attr: OptTensor
+) -> Tensor:
         edge_attrs = [env_edge_attr] + (self.num_layers - 1) * [act_edge_attr]
         for idx, (edge_attr, layer) in enumerate(zip(edge_attrs[:-1], self.net[:-1])):
-            x = layer(x=x, edge_index=edge_index, edge_attr=edge_attr)
+            # Si la couche est GCN, ne pas passer edge_attr
+            if "GCN" in layer.__class__.__name__:
+                x = layer(
+                    x=x,
+                    edge_index=edge_index
+                )
+            else:
+                x = layer(
+                    x=x,
+                    edge_index=edge_index,
+                    edge_attr=edge_attr
+                )
             x = self.dropout(x)
             x = self.act(x)
         x = self.net[-1](x=x, edge_index=edge_index, edge_attr=edge_attrs[-1])
